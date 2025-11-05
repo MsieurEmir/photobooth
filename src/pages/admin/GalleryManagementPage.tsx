@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Image as ImageIcon, X } from 'lucide-react';
+import { Plus, Trash2, Image as ImageIcon, X, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ImageUploadModal } from '../../components/admin/ImageUploadModal';
 import { TagManagement } from '../../components/admin/TagManagement';
@@ -9,6 +9,7 @@ interface GalleryImage {
   id: string;
   image_url: string;
   caption: string;
+  is_public: boolean;
   created_at: string;
   tags?: Array<{ id: string; name: string }>;
 }
@@ -24,6 +25,7 @@ const GalleryManagementPage = () => {
   const [tags, setTags] = useState<GalleryTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'public' | 'private'>('all');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   useEffect(() => {
@@ -138,6 +140,21 @@ const GalleryManagementPage = () => {
     }
   };
 
+  const toggleImageVisibility = async (imageId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('gallery')
+        .update({ is_public: !currentStatus })
+        .eq('id', imageId);
+
+      if (error) throw error;
+      loadImages();
+    } catch (error) {
+      console.error('Error updating image visibility:', error);
+      alert('Erreur lors de la modification de la visibilité');
+    }
+  };
+
   const createTag = async (tagName: string) => {
     try {
       const { error } = await supabase
@@ -164,13 +181,22 @@ const GalleryManagementPage = () => {
     setSelectedTags([]);
   };
 
-  const filteredImages = selectedTags.length === 0
+  let filteredImages = selectedTags.length === 0
     ? images
     : images.filter((image) =>
         selectedTags.every((selectedTagId) =>
           image.tags?.some((tag) => tag.id === selectedTagId)
         )
       );
+
+  if (visibilityFilter === 'public') {
+    filteredImages = filteredImages.filter((image) => image.is_public);
+  } else if (visibilityFilter === 'private') {
+    filteredImages = filteredImages.filter((image) => !image.is_public);
+  }
+
+  const publicCount = images.filter((img) => img.is_public).length;
+  const privateCount = images.filter((img) => !img.is_public).length;
 
   if (loading) {
     return (
@@ -200,6 +226,46 @@ const GalleryManagementPage = () => {
       </div>
 
       <TagManagement tags={tags} onTagsChange={loadTags} />
+
+      <div className="card p-4 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-semibold text-gray-700">Filtrer par visibilité</p>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button
+            onClick={() => setVisibilityFilter('all')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+              visibilityFilter === 'all'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <span>Toutes ({images.length})</span>
+          </button>
+          <button
+            onClick={() => setVisibilityFilter('public')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+              visibilityFilter === 'public'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <Eye size={16} />
+            <span>Publiques ({publicCount})</span>
+          </button>
+          <button
+            onClick={() => setVisibilityFilter('private')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+              visibilityFilter === 'private'
+                ? 'bg-gray-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <EyeOff size={16} />
+            <span>Privées ({privateCount})</span>
+          </button>
+        </div>
+      </div>
 
       <div className="card p-4 mb-6">
         <div className="flex items-center justify-between mb-3">
@@ -274,6 +340,27 @@ const GalleryManagementPage = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
+              <div className="absolute top-2 left-2">
+                <div
+                  className={`px-2 py-1 rounded-lg text-xs font-medium flex items-center space-x-1 shadow-lg ${
+                    image.is_public
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-700 text-white'
+                  }`}
+                >
+                  {image.is_public ? (
+                    <>
+                      <Eye size={12} />
+                      <span>Public</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff size={12} />
+                      <span>Privé</span>
+                    </>
+                  )}
+                </div>
+              </div>
               <div className="p-3">
                 <p className="text-sm text-gray-700 line-clamp-2 mb-2">{image.caption}</p>
                 <div className="flex flex-wrap gap-1">
@@ -287,7 +374,18 @@ const GalleryManagementPage = () => {
                   ))}
                 </div>
               </div>
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
+                <button
+                  onClick={() => toggleImageVisibility(image.id, image.is_public)}
+                  className={`p-2 rounded-lg shadow-lg transition-colors ${
+                    image.is_public
+                      ? 'bg-gray-700 hover:bg-gray-800 text-white'
+                      : 'bg-green-500 hover:bg-green-600 text-white'
+                  }`}
+                  title={image.is_public ? 'Rendre privé' : 'Rendre public'}
+                >
+                  {image.is_public ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
                 <button
                   onClick={() => deleteImage(image.id, image.image_url)}
                   className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg"

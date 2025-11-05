@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Image as ImageIcon, Trash2, Tag, Plus } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, Trash2, Tag, Plus, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface ImageUploadModalProps {
@@ -16,6 +16,7 @@ interface ImageFile {
   preview: string;
   caption: string;
   selectedTags: string[];
+  isPublic: boolean;
   uploading: boolean;
   progress: number;
   error: string | null;
@@ -66,6 +67,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
         preview: URL.createObjectURL(file),
         caption: '',
         selectedTags: [],
+        isPublic: true,
         uploading: false,
         progress: 0,
         error: null,
@@ -110,6 +112,14 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
     setImages((prev) => {
       const newImages = [...prev];
       newImages[index].caption = caption;
+      return newImages;
+    });
+  };
+
+  const toggleImageVisibility = (index: number) => {
+    setImages((prev) => {
+      const newImages = [...prev];
+      newImages[index].isPublic = !newImages[index].isPublic;
       return newImages;
     });
   };
@@ -178,7 +188,8 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
         .from('gallery')
         .insert({
           image_url: urlData.publicUrl,
-          caption: imageFile.caption || 'Photo'
+          caption: imageFile.caption || 'Photo',
+          is_public: imageFile.isPublic
         })
         .select()
         .single();
@@ -433,6 +444,35 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                                 <Trash2 size={18} />
                               </button>
                             )}
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => toggleImageVisibility(index)}
+                              disabled={image.uploading || image.uploaded}
+                              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                                image.isPublic
+                                  ? 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100'
+                                  : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'
+                              } ${(image.uploading || image.uploaded) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              {image.isPublic ? (
+                                <>
+                                  <Eye size={16} />
+                                  <span className="text-sm font-medium">Public</span>
+                                </>
+                              ) : (
+                                <>
+                                  <EyeOff size={16} />
+                                  <span className="text-sm font-medium">Privé</span>
+                                </>
+                              )}
+                            </button>
+                            <p className="text-xs text-gray-500">
+                              {image.isPublic
+                                ? 'Visible sur la galerie publique'
+                                : 'Visible uniquement dans l\'admin'}
+                            </p>
                           </div>
 
                           <div className="flex flex-wrap gap-2">

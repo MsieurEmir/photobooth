@@ -137,18 +137,21 @@ export interface Database {
           id: string
           image_url: string
           caption: string
+          is_public: boolean
           created_at: string
         }
         Insert: {
           id?: string
           image_url: string
           caption: string
+          is_public?: boolean
           created_at?: string
         }
         Update: {
           id?: string
           image_url?: string
           caption?: string
+          is_public?: boolean
           created_at?: string
         }
       }

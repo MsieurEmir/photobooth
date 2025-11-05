@@ -33,6 +33,7 @@ const GalleryPage = () => {
       const { data: imagesData, error: imagesError } = await supabase
         .from('gallery')
         .select('*')
+        .eq('is_public', true)
         .order('created_at', { ascending: false });
 
       if (imagesError) throw imagesError;
