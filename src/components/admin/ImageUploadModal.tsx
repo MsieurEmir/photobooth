@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Image as ImageIcon, Trash2, Tag, Plus, Eye, EyeOff } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, Trash2, Tag, Plus, Eye, EyeOff, Crop } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { ImageCropModal } from './ImageCropModal';
 
 interface ImageUploadModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ interface ImageFile {
   progress: number;
   error: string | null;
   uploaded: boolean;
+  croppedBlob?: Blob;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -37,6 +39,8 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [currentCropIndex, setCurrentCropIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
@@ -124,6 +128,26 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
     });
   };
 
+  const openCropModal = (index: number) => {
+    setCurrentCropIndex(index);
+    setCropModalOpen(true);
+  };
+
+  const handleCropSave = (croppedBlob: Blob) => {
+    if (currentCropIndex === null) return;
+
+    setImages((prev) => {
+      const newImages = [...prev];
+      newImages[currentCropIndex].croppedBlob = croppedBlob;
+      URL.revokeObjectURL(newImages[currentCropIndex].preview);
+      newImages[currentCropIndex].preview = URL.createObjectURL(croppedBlob);
+      return newImages;
+    });
+
+    setCropModalOpen(false);
+    setCurrentCropIndex(null);
+  };
+
   const toggleTag = (imageIndex: number, tagId: string) => {
     setImages((prev) => {
       const newImages = [...prev];
@@ -165,9 +189,11 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
         return newImages;
       });
 
+      const fileToUpload = imageFile.croppedBlob || imageFile.file;
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('gallery-images')
-        .upload(filePath, imageFile.file, {
+        .upload(filePath, fileToUpload, {
           cacheControl: '3600',
           upsert: false
         });
@@ -405,6 +431,15 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                             alt="Preview"
                             className="w-full h-full object-cover rounded-lg"
                           />
+                          {!image.uploaded && !image.uploading && (
+                            <button
+                              onClick={() => openCropModal(index)}
+                              className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-white rounded-lg shadow-lg transition-colors"
+                              title="Redimensionner"
+                            >
+                              <Crop size={16} className="text-gray-700" />
+                            </button>
+                          )}
                           {image.uploaded && (
                             <div className="absolute inset-0 bg-green-500/80 rounded-lg flex items-center justify-center">
                               <svg
@@ -553,6 +588,19 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
             </div>
           )}
         </motion.div>
+
+        {currentCropIndex !== null && (
+          <ImageCropModal
+            isOpen={cropModalOpen}
+            imageUrl={images[currentCropIndex].preview}
+            onClose={() => {
+              setCropModalOpen(false);
+              setCurrentCropIndex(null);
+            }}
+            onSave={handleCropSave}
+            aspectRatio={4 / 3}
+          />
+        )}
       </div>
     </AnimatePresence>
   );
