@@ -569,6 +569,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                           <div className="flex flex-wrap gap-2">
                             {availableTags.map((tag) => {
                               const isSelected = image.selectedTags.includes(tag.id);
+                              console.log('Tag:', tag.name, 'ID:', tag.id, 'Selected:', isSelected, 'SelectedTags:', image.selectedTags);
                               return (
                                 <button
                                   key={tag.id}
@@ -576,23 +577,25 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
+                                    console.log('Clicking tag:', tag.id, 'Current selected tags:', image.selectedTags);
                                     toggleTag(index, tag.id);
                                   }}
                                   disabled={image.uploading}
                                   style={{
-                                    backgroundColor: isSelected ? '#2563eb' : '#f3f4f6',
-                                    color: isSelected ? '#ffffff' : '#374151',
-                                    border: `2px solid ${isSelected ? '#2563eb' : '#d1d5db'}`,
-                                    padding: '6px 12px',
+                                    backgroundColor: isSelected ? '#dc2626' : '#e5e7eb',
+                                    color: isSelected ? '#ffffff' : '#1f2937',
+                                    border: `3px solid ${isSelected ? '#dc2626' : '#9ca3af'}`,
+                                    padding: '8px 16px',
                                     borderRadius: '9999px',
                                     fontSize: '0.875rem',
-                                    fontWeight: '500',
+                                    fontWeight: isSelected ? '700' : '500',
                                     cursor: image.uploading ? 'not-allowed' : 'pointer',
                                     opacity: image.uploading ? 0.5 : 1,
                                     transition: 'all 0.2s',
+                                    boxShadow: isSelected ? '0 2px 8px rgba(220, 38, 38, 0.3)' : 'none',
                                   }}
                                 >
-                                  {tag.name}
+                                  {isSelected && '✓ '}{tag.name}
                                 </button>
                               );
                             })}
