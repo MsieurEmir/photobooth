@@ -17,6 +17,8 @@ import BookingsPage from './pages/admin/BookingsPage';
 import ProductsPage from './pages/admin/ProductsPage';
 import GalleryManagementPage from './pages/admin/GalleryManagementPage';
 import MessagesPage from './pages/admin/MessagesPage';
+import ProfilePage from './pages/admin/ProfilePage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
 
 function App() {
   return (
@@ -38,6 +40,8 @@ function App() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="gallery" element={<GalleryManagementPage />} />
             <Route path="messages" element={<MessagesPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="users" element={<AdminUsersPage />} />
           </Route>
 
           <Route

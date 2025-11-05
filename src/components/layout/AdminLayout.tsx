@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Camera, LayoutDashboard, Calendar, Package, Image, MessageSquare, LogOut, Menu, X } from 'lucide-react';
+import { Camera, LayoutDashboard, Calendar, Package, Image, MessageSquare, LogOut, Menu, X, User, Users, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLayout = () => {
@@ -8,6 +8,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const { signOut, profile } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -24,6 +25,7 @@ const AdminLayout = () => {
     { path: '/admin/products', label: 'Produits', icon: Package },
     { path: '/admin/gallery', label: 'Galerie', icon: Image },
     { path: '/admin/messages', label: 'Messages', icon: MessageSquare },
+    { path: '/admin/users', label: 'Administrateurs', icon: Users },
   ];
 
   return (
@@ -43,17 +45,50 @@ const AdminLayout = () => {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="text-right hidden md:block">
-              <p className="text-sm font-medium">{profile?.full_name}</p>
-              <p className="text-xs text-gray-300">{profile?.role === 'admin' ? 'Administrateur' : 'Staff'}</p>
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center space-x-2 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+              >
+                <User size={18} />
+                <div className="text-right hidden md:block">
+                  <p className="text-sm font-medium">{profile?.full_name}</p>
+                </div>
+                <ChevronDown size={16} className={`transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {userMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setUserMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <p className="text-sm font-medium text-gray-900">{profile?.full_name}</p>
+                      <p className="text-xs text-gray-500">{profile?.email}</p>
+                    </div>
+                    <div className="py-2">
+                      <Link
+                        to="/admin/profile"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <User size={16} />
+                        <span className="text-sm">Mon Profil</span>
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut size={16} />
+                        <span className="text-sm">Déconnexion</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center space-x-2 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
-            >
-              <LogOut size={18} />
-              <span className="hidden sm:inline">Déconnexion</span>
-            </button>
           </div>
         </div>
       </div>
