@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Image as ImageIcon, X, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Image as ImageIcon, X, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ImageUploadModal } from '../../components/admin/ImageUploadModal';
 import { TagManagement } from '../../components/admin/TagManagement';
@@ -11,7 +11,7 @@ interface GalleryImage {
   caption: string;
   is_public: boolean;
   created_at: string;
-  tags?: Array<{ id: string; name: string }>;
+  tags?: Array<{ id: string; name: string; color: string }>;
 }
 
 interface GalleryTag {
@@ -28,6 +28,7 @@ const GalleryManagementPage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'public' | 'private'>('all');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadGalleryData();
@@ -73,7 +74,8 @@ const GalleryManagementPage = () => {
               ...image,
               tags: imageTags?.map((it: any) => ({
                 id: it.gallery_tags.id,
-                name: it.gallery_tags.name
+                name: it.gallery_tags.name,
+                color: it.gallery_tags.color
               })) || []
             };
           })
@@ -198,6 +200,61 @@ const GalleryManagementPage = () => {
 
   const publicCount = images.filter((img) => img.is_public).length;
   const privateCount = images.filter((img) => !img.is_public).length;
+
+  const toggleTagExpansion = (imageId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedTags((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(imageId)) {
+        newSet.delete(imageId);
+      } else {
+        newSet.add(imageId);
+      }
+      return newSet;
+    });
+  };
+
+  const renderTags = (image: GalleryImage, maxTags = 3) => {
+    if (!image.tags || image.tags.length === 0) return null;
+
+    const isExpanded = expandedTags.has(image.id);
+    const visibleTags = isExpanded ? image.tags : image.tags.slice(0, maxTags);
+    const hiddenCount = image.tags.length - maxTags;
+
+    return (
+      <div className="flex flex-wrap gap-1 items-center">
+        {visibleTags.map((tag) => (
+          <span
+            key={tag.id}
+            className="px-2 py-0.5 rounded-full text-xs font-medium shadow-sm"
+            style={{
+              backgroundColor: tag.color,
+              color: '#ffffff'
+            }}
+          >
+            {tag.name}
+          </span>
+        ))}
+        {hiddenCount > 0 && !isExpanded && (
+          <button
+            onClick={(e) => toggleTagExpansion(image.id, e)}
+            className="px-2 py-0.5 rounded-full text-xs font-medium bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-0.5"
+          >
+            +{hiddenCount}
+            <ChevronDown size={12} />
+          </button>
+        )}
+        {isExpanded && image.tags.length > maxTags && (
+          <button
+            onClick={(e) => toggleTagExpansion(image.id, e)}
+            className="px-2 py-0.5 rounded-full text-xs font-medium bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            <ChevronUp size={12} />
+          </button>
+        )}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -354,12 +411,20 @@ const GalleryManagementPage = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="card overflow-hidden group relative"
             >
-              <div className="aspect-square bg-gray-200">
+              <div className="aspect-square bg-gray-200 relative">
                 <img
                   src={image.image_url}
                   alt={image.caption}
                   className="w-full h-full object-cover"
                 />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-2 pb-1.5">
+                  <div className="mb-1">
+                    {renderTags(image, 3)}
+                  </div>
+                  {image.caption && (
+                    <p className="text-white text-xs font-medium line-clamp-2">{image.caption}</p>
+                  )}
+                </div>
               </div>
               <div className="absolute top-2 left-2">
                 <div
@@ -380,19 +445,6 @@ const GalleryManagementPage = () => {
                       <span>Privé</span>
                     </>
                   )}
-                </div>
-              </div>
-              <div className="p-3">
-                <p className="text-sm text-gray-700 line-clamp-2 mb-2">{image.caption}</p>
-                <div className="flex flex-wrap gap-1">
-                  {image.tags?.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs"
-                    >
-                      {tag.name}
-                    </span>
-                  ))}
                 </div>
               </div>
               <div className="absolute top-2 right-2 flex space-x-2">
