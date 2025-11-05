@@ -15,6 +15,7 @@ interface ImageUploadModalProps {
 interface ImageFile {
   file: File;
   preview: string;
+  name: string;
   caption: string;
   selectedTags: string[];
   isPublic: boolean;
@@ -70,6 +71,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
       newImages.push({
         file,
         preview: URL.createObjectURL(file),
+        name: file.name.replace(/\.[^/.]+$/, ''),
         caption: '',
         selectedTags: [],
         isPublic: true,
@@ -117,6 +119,14 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
     setImages((prev) => {
       const newImages = [...prev];
       newImages[index].caption = caption;
+      return newImages;
+    });
+  };
+
+  const updateImageName = (index: number, name: string) => {
+    setImages((prev) => {
+      const newImages = [...prev];
+      newImages[index].name = name;
       return newImages;
     });
   };
@@ -251,7 +261,8 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
         .from('gallery')
         .insert({
           image_url: urlData.publicUrl,
-          caption: imageFile.caption || 'Photo',
+          name: imageFile.name || 'Sans nom',
+          caption: imageFile.caption || '',
           is_public: imageFile.isPublic
         })
         .select()
@@ -499,16 +510,35 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
 
                         <div className="flex-1 space-y-3">
                           <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <input
-                                type="text"
-                                value={image.caption}
-                                onChange={(e) => updateImageCaption(index, e.target.value)}
-                                placeholder="Légende de l'image..."
-                                className="input-field w-full"
-                                disabled={image.uploading}
-                                readOnly={image.uploaded}
-                              />
+                            <div className="flex-1 space-y-2">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  Nom de la photo *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={image.name}
+                                  onChange={(e) => updateImageName(index, e.target.value)}
+                                  placeholder="Nom unique de la photo"
+                                  className="input-field w-full"
+                                  disabled={image.uploading}
+                                  readOnly={image.uploaded}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  Légende
+                                </label>
+                                <input
+                                  type="text"
+                                  value={image.caption}
+                                  onChange={(e) => updateImageCaption(index, e.target.value)}
+                                  placeholder="Description de l'image..."
+                                  className="input-field w-full"
+                                  disabled={image.uploading}
+                                  readOnly={image.uploaded}
+                                />
+                              </div>
                             </div>
                             {!image.uploaded && !image.uploading && (
                               <button
@@ -567,38 +597,46 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                           </div>
 
                           <div className="flex flex-wrap gap-2">
-                            {availableTags.map((tag) => {
-                              const isSelected = image.selectedTags.includes(tag.id);
-                              console.log('Tag:', tag.name, 'ID:', tag.id, 'Selected:', isSelected, 'SelectedTags:', image.selectedTags);
-                              return (
-                                <button
-                                  key={tag.id}
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    console.log('Clicking tag:', tag.id, 'Current selected tags:', image.selectedTags);
-                                    toggleTag(index, tag.id);
-                                  }}
-                                  disabled={image.uploading}
-                                  style={{
-                                    backgroundColor: isSelected ? '#dc2626' : '#e5e7eb',
-                                    color: isSelected ? '#ffffff' : '#1f2937',
-                                    border: `3px solid ${isSelected ? '#dc2626' : '#9ca3af'}`,
-                                    padding: '8px 16px',
-                                    borderRadius: '9999px',
-                                    fontSize: '0.875rem',
-                                    fontWeight: isSelected ? '700' : '500',
-                                    cursor: image.uploading ? 'not-allowed' : 'pointer',
-                                    opacity: image.uploading ? 0.5 : 1,
-                                    transition: 'all 0.2s',
-                                    boxShadow: isSelected ? '0 2px 8px rgba(220, 38, 38, 0.3)' : 'none',
-                                  }}
-                                >
-                                  {isSelected && '✓ '}{tag.name}
-                                </button>
-                              );
-                            })}
+                            {availableTags
+                              .sort((a, b) => {
+                                const aSelected = image.selectedTags.includes(a.id);
+                                const bSelected = image.selectedTags.includes(b.id);
+                                if (aSelected && !bSelected) return -1;
+                                if (!aSelected && bSelected) return 1;
+                                return 0;
+                              })
+                              .map((tag) => {
+                                const isSelected = image.selectedTags.includes(tag.id);
+                                console.log('Tag:', tag.name, 'ID:', tag.id, 'Selected:', isSelected, 'SelectedTags:', image.selectedTags);
+                                return (
+                                  <button
+                                    key={tag.id}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('Clicking tag:', tag.id, 'Current selected tags:', image.selectedTags);
+                                      toggleTag(index, tag.id);
+                                    }}
+                                    disabled={image.uploading}
+                                    style={{
+                                      backgroundColor: isSelected ? '#dc2626' : '#e5e7eb',
+                                      color: isSelected ? '#ffffff' : '#1f2937',
+                                      border: `3px solid ${isSelected ? '#dc2626' : '#9ca3af'}`,
+                                      padding: '8px 16px',
+                                      borderRadius: '9999px',
+                                      fontSize: '0.875rem',
+                                      fontWeight: isSelected ? '700' : '500',
+                                      cursor: image.uploading ? 'not-allowed' : 'pointer',
+                                      opacity: image.uploading ? 0.5 : 1,
+                                      transition: 'all 0.2s',
+                                      boxShadow: isSelected ? '0 2px 8px rgba(220, 38, 38, 0.3)' : 'none',
+                                    }}
+                                  >
+                                    {isSelected && '✓ '}{tag.name}
+                                  </button>
+                                );
+                              })}
                           </div>
 
                           {image.uploading && (
