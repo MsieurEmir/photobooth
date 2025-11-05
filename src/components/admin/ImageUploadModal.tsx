@@ -23,6 +23,7 @@ interface ImageFile {
   error: string | null;
   uploaded: boolean;
   croppedBlob?: Blob;
+  uploadedId?: string;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -120,12 +121,26 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
     });
   };
 
-  const toggleImageVisibility = (index: number) => {
+  const toggleImageVisibility = async (index: number) => {
+    const image = images[index];
+    const newVisibility = !image.isPublic;
+
     setImages((prev) => {
       const newImages = [...prev];
-      newImages[index].isPublic = !newImages[index].isPublic;
+      newImages[index].isPublic = newVisibility;
       return newImages;
     });
+
+    if (image.uploaded && image.uploadedId) {
+      try {
+        await supabase
+          .from('gallery')
+          .update({ is_public: newVisibility })
+          .eq('id', image.uploadedId);
+      } catch (error) {
+        console.error('Error updating visibility:', error);
+      }
+    }
   };
 
   const openCropModal = (index: number) => {
@@ -148,7 +163,9 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
     setCurrentCropIndex(null);
   };
 
-  const toggleTag = (imageIndex: number, tagId: string) => {
+  const toggleTag = async (imageIndex: number, tagId: string) => {
+    const image = images[imageIndex];
+
     setImages((prev) => {
       const newImages = [...prev];
       const tags = newImages[imageIndex].selectedTags;
@@ -159,6 +176,26 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
       }
       return newImages;
     });
+
+    if (image.uploaded && image.uploadedId) {
+      try {
+        const isAdding = !image.selectedTags.includes(tagId);
+
+        if (isAdding) {
+          await supabase
+            .from('gallery_image_tags')
+            .insert({ image_id: image.uploadedId, tag_id: tagId });
+        } else {
+          await supabase
+            .from('gallery_image_tags')
+            .delete()
+            .eq('image_id', image.uploadedId)
+            .eq('tag_id', tagId);
+        }
+      } catch (error) {
+        console.error('Error updating tags:', error);
+      }
+    }
   };
 
   const handleCreateTag = async () => {
@@ -246,6 +283,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
         newImages[index].progress = 100;
         newImages[index].uploaded = true;
         newImages[index].uploading = false;
+        newImages[index].uploadedId = galleryData.id;
         return newImages;
       });
 
@@ -469,6 +507,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                                 placeholder="Légende de l'image..."
                                 className="input-field w-full"
                                 disabled={image.uploading}
+                                readOnly={image.uploaded}
                               />
                             </div>
                             {!image.uploaded && !image.uploading && (
@@ -481,7 +520,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                             )}
                           </div>
 
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <button
                               type="button"
                               onClick={(e) => {
@@ -494,21 +533,31 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                               disabled={image.uploading}
                               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${image.uploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${
                                 image.isPublic
-                                  ? 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100'
-                                  : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'
+                                  ? 'bg-green-50 border-2 border-green-500 text-green-700 hover:bg-green-100'
+                                  : 'bg-gray-50 border-2 border-gray-300 text-gray-700 hover:bg-gray-100'
                               }`}
                             >
-                              {image.isPublic ? (
-                                <>
-                                  <Eye size={16} />
-                                  <span className="text-sm font-medium">Public</span>
-                                </>
-                              ) : (
-                                <>
-                                  <EyeOff size={16} />
-                                  <span className="text-sm font-medium">Privé</span>
-                                </>
-                              )}
+                              <Eye size={16} />
+                              <span className="text-sm font-medium">Public</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (!image.uploading) {
+                                  toggleImageVisibility(index);
+                                }
+                              }}
+                              disabled={image.uploading}
+                              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${image.uploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${
+                                !image.isPublic
+                                  ? 'bg-gray-700 border-2 border-gray-700 text-white hover:bg-gray-800'
+                                  : 'bg-gray-50 border-2 border-gray-300 text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              <EyeOff size={16} />
+                              <span className="text-sm font-medium">Privé</span>
                             </button>
                             <p className="text-xs text-gray-500">
                               {image.isPublic
@@ -525,14 +574,12 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  if (!image.uploading) {
-                                    toggleTag(index, tag.id);
-                                  }
+                                  toggleTag(index, tag.id);
                                 }}
                                 disabled={image.uploading}
-                                className={`px-3 py-1 rounded-full text-sm transition-colors ${image.uploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${
+                                className={`px-3 py-1 rounded-full text-sm transition-colors ${image.uploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:shadow-md'} ${
                                   image.selectedTags.includes(tag.id)
-                                    ? 'bg-primary text-white'
+                                    ? 'bg-primary text-white font-medium'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
                               >
