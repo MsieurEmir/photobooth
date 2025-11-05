@@ -31,14 +31,14 @@ const Header = () => {
   }, [location]);
 
   return (
-    <header 
-      className={`fixed w-full z-[100] backdrop-blur-sm transition-all duration-300 ${
+    <header
+      className={`fixed w-full z-[100] transition-all duration-300 ${
         isScrolled || location.pathname !== '/'
-          ? 'bg-secondary/95 shadow-md py-2' 
-          : 'bg-transparent py-4'
+          ? 'bg-secondary shadow-md py-2'
+          : 'bg-gradient-to-b from-black/60 to-transparent py-4'
       }`}
-      style={{ 
-        position: 'sticky',
+      style={{
+        backdropFilter: isScrolled || location.pathname !== '/' ? 'blur(8px)' : 'blur(4px)',
         top: 0
       }}
     >
@@ -92,7 +92,8 @@ const Header = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '100%' }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 bg-secondary/95 backdrop-blur-sm z-10 md:hidden flex flex-col"
+              className="fixed inset-0 bg-secondary z-10 md:hidden flex flex-col"
+              style={{ backdropFilter: 'blur(8px)' }}
             >
               <div className="h-20" />
               <nav className="flex flex-col space-y-6 p-8 text-center">
