@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Camera, LayoutDashboard, Calendar, Package, Image, MessageSquare, LogOut, Menu, X, User, Users, ChevronDown } from 'lucide-react';
+import { Camera, LayoutDashboard, Calendar, Package, Image, MessageSquare, LogOut, Menu, X, User, Users, ChevronDown, UserCheck } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLayout = () => {
@@ -25,6 +25,7 @@ const AdminLayout = () => {
     { path: '/admin/products', label: 'Produits', icon: Package },
     { path: '/admin/gallery', label: 'Galerie', icon: Image },
     { path: '/admin/messages', label: 'Messages', icon: MessageSquare },
+    { path: '/admin/clients', label: 'Clients', icon: UserCheck },
     { path: '/admin/users', label: 'Administrateurs', icon: Users },
   ];
 

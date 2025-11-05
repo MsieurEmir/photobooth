@@ -17,7 +17,8 @@ const BookingPage = () => {
     date: '',
     time: '',
     duration: '4',
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     address: '',
@@ -95,7 +96,8 @@ const BookingPage = () => {
     }
     
     if (step === 2) {
-      if (!formData.name) newErrors.name = "Veuillez entrer votre nom";
+      if (!formData.firstName) newErrors.firstName = "Veuillez entrer votre prénom";
+      if (!formData.lastName) newErrors.lastName = "Veuillez entrer votre nom";
       if (!formData.email) newErrors.email = "Veuillez entrer votre email";
       if (!formData.phone) newErrors.phone = "Veuillez entrer votre téléphone";
       if (!formData.address) newErrors.address = "Veuillez entrer l'adresse de l'événement";
@@ -152,8 +154,10 @@ const BookingPage = () => {
         const { error: updateError } = await supabase
           .from('customers')
           .update({
-            name: formData.name,
-            phone: formData.phone
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone: formData.phone,
+            address: formData.address
           })
           .eq('id', customerId);
 
@@ -165,9 +169,11 @@ const BookingPage = () => {
         const { data: newCustomer, error: customerError } = await supabase
           .from('customers')
           .insert({
-            name: formData.name,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
             email: formData.email,
-            phone: formData.phone
+            phone: formData.phone,
+            address: formData.address
           })
           .select()
           .single();
@@ -338,6 +344,7 @@ const BookingPage = () => {
                           onChange={handleChange}
                           className={`input-field pl-10 ${errors.date ? 'border-error' : ''}`}
                           min={new Date().toISOString().split('T')[0]}
+                          required
                         />
                       </div>
                       {errors.date && <p className="text-error text-sm mt-1">{errors.date}</p>}
@@ -354,6 +361,7 @@ const BookingPage = () => {
                           value={formData.time}
                           onChange={handleChange}
                           className={`input-field pl-10 ${errors.time ? 'border-error' : ''}`}
+                          required
                         />
                       </div>
                       {errors.time && <p className="text-error text-sm mt-1">{errors.time}</p>}
@@ -399,31 +407,48 @@ const BookingPage = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       <div>
-                        <label htmlFor="name" className="label">Nom complet</label>
+                        <label htmlFor="firstName" className="label">Prénom</label>
                         <input
                           type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
+                          id="firstName"
+                          name="firstName"
+                          value={formData.firstName}
                           onChange={handleChange}
-                          className={`input-field ${errors.name ? 'border-error' : ''}`}
-                          placeholder="John Doe"
+                          className={`input-field ${errors.firstName ? 'border-error' : ''}`}
+                          placeholder="John"
+                          required
                         />
-                        {errors.name && <p className="text-error text-sm mt-1">{errors.name}</p>}
+                        {errors.firstName && <p className="text-error text-sm mt-1">{errors.firstName}</p>}
                       </div>
                       <div>
-                        <label htmlFor="email" className="label">Email</label>
+                        <label htmlFor="lastName" className="label">Nom</label>
                         <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
+                          type="text"
+                          id="lastName"
+                          name="lastName"
+                          value={formData.lastName}
                           onChange={handleChange}
-                          className={`input-field ${errors.email ? 'border-error' : ''}`}
-                          placeholder="john@example.com"
+                          className={`input-field ${errors.lastName ? 'border-error' : ''}`}
+                          placeholder="Doe"
+                          required
                         />
-                        {errors.email && <p className="text-error text-sm mt-1">{errors.email}</p>}
+                        {errors.lastName && <p className="text-error text-sm mt-1">{errors.lastName}</p>}
                       </div>
+                    </div>
+
+                    <div className="mb-6">
+                      <label htmlFor="email" className="label">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={`input-field ${errors.email ? 'border-error' : ''}`}
+                        placeholder="john@example.com"
+                        required
+                      />
+                      {errors.email && <p className="text-error text-sm mt-1">{errors.email}</p>}
                     </div>
                     
                     <div className="mb-6">
@@ -436,6 +461,7 @@ const BookingPage = () => {
                         onChange={handleChange}
                         className={`input-field ${errors.phone ? 'border-error' : ''}`}
                         placeholder="06 12 34 56 78"
+                        required
                       />
                       {errors.phone && <p className="text-error text-sm mt-1">{errors.phone}</p>}
                     </div>
@@ -452,6 +478,7 @@ const BookingPage = () => {
                           onChange={handleChange}
                           className={`input-field pl-10 ${errors.address ? 'border-error' : ''}`}
                           placeholder="123 Rue de la Fête, 75001 Paris"
+                          required
                         />
                       </div>
                       {errors.address && <p className="text-error text-sm mt-1">{errors.address}</p>}
@@ -466,6 +493,7 @@ const BookingPage = () => {
                           value={formData.eventType}
                           onChange={handleChange}
                           className={`input-field ${errors.eventType ? 'border-error' : ''}`}
+                          required
                         >
                           <option value="">Sélectionner...</option>
                           {eventTypes.map(type => (
@@ -501,17 +529,28 @@ const BookingPage = () => {
                       />
                     </div>
                     
-                    <div className="flex justify-between mt-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-6">
                       <button
                         type="button"
                         onClick={prevStep}
-                        className="btn-outline"
+                        className="btn-outline order-2 sm:order-1"
                       >
                         Retour
                       </button>
+                      <a
+                        href="https://wa.me/33612345678?text=Bonjour%2C%20je%20souhaite%20r%C3%A9server%20un%20photobooth"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-outline border-green-500 text-green-600 hover:bg-green-500 hover:text-white flex items-center justify-center gap-2 order-3 sm:order-2"
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                        WhatsApp
+                      </a>
                       <button
                         type="submit"
-                        className="btn-primary"
+                        className="btn-primary order-1 sm:order-3"
                         disabled={submitting}
                       >
                         {submitting ? 'Envoi en cours...' : 'Réserver Maintenant'}

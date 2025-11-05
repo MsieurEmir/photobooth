@@ -19,6 +19,7 @@ import GalleryManagementPage from './pages/admin/GalleryManagementPage';
 import MessagesPage from './pages/admin/MessagesPage';
 import ProfilePage from './pages/admin/ProfilePage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminClientsPage from './pages/admin/AdminClientsPage';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="messages" element={<MessagesPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="users" element={<AdminUsersPage />} />
+            <Route path="clients" element={<AdminClientsPage />} />
           </Route>
 
           <Route
