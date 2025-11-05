@@ -567,25 +567,35 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                           </div>
 
                           <div className="flex flex-wrap gap-2">
-                            {availableTags.map((tag) => (
-                              <button
-                                key={tag.id}
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  toggleTag(index, tag.id);
-                                }}
-                                disabled={image.uploading}
-                                className={`px-3 py-1 rounded-full text-sm transition-colors ${image.uploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:shadow-md'} ${
-                                  image.selectedTags.includes(tag.id)
-                                    ? 'bg-primary text-white font-medium'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                              >
-                                {tag.name}
-                              </button>
-                            ))}
+                            {availableTags.map((tag) => {
+                              const isSelected = image.selectedTags.includes(tag.id);
+                              return (
+                                <button
+                                  key={tag.id}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleTag(index, tag.id);
+                                  }}
+                                  disabled={image.uploading}
+                                  style={{
+                                    backgroundColor: isSelected ? '#2563eb' : '#f3f4f6',
+                                    color: isSelected ? '#ffffff' : '#374151',
+                                    border: `2px solid ${isSelected ? '#2563eb' : '#d1d5db'}`,
+                                    padding: '6px 12px',
+                                    borderRadius: '9999px',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '500',
+                                    cursor: image.uploading ? 'not-allowed' : 'pointer',
+                                    opacity: image.uploading ? 0.5 : 1,
+                                    transition: 'all 0.2s',
+                                  }}
+                                >
+                                  {tag.name}
+                                </button>
+                              );
+                            })}
                           </div>
 
                           {image.uploading && (
