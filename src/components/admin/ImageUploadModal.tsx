@@ -483,9 +483,16 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
 
                           <div className="flex items-center space-x-2">
                             <button
-                              onClick={() => toggleImageVisibility(index)}
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (!image.uploading && !image.uploaded) {
+                                  toggleImageVisibility(index);
+                                }
+                              }}
                               disabled={image.uploading || image.uploaded}
-                              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
                                 image.isPublic
                                   ? 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100'
                                   : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'
@@ -514,13 +521,20 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                             {availableTags.map((tag) => (
                               <button
                                 key={tag.id}
-                                onClick={() => toggleTag(index, tag.id)}
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (!image.uploading && !image.uploaded) {
+                                    toggleTag(index, tag.id);
+                                  }
+                                }}
                                 disabled={image.uploading || image.uploaded}
-                                className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                                className={`px-3 py-1 rounded-full text-sm transition-colors cursor-pointer ${
                                   image.selectedTags.includes(tag.id)
                                     ? 'bg-primary text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
+                                } ${(image.uploading || image.uploaded) ? 'opacity-50 cursor-not-allowed' : ''}`}
                               >
                                 {tag.name}
                               </button>
