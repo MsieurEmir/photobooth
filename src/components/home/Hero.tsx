@@ -55,20 +55,18 @@ const Hero = () => {
       </div>
 
       {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-24 xs:bottom-24 sm:bottom-8 md:bottom-8 left-1/2 -translate-x-1/2 z-20"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-      >
-        <a
+      <div className="absolute bottom-24 xs:bottom-24 sm:bottom-8 md:bottom-8 left-0 right-0 z-20 flex justify-center">
+        <motion.a
           href="#features"
           className="text-white flex flex-col items-center"
           aria-label="Scroll down"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
         >
           <span className="text-xs md:text-sm mb-1 md:mb-2">Découvrir</span>
           <ChevronDown className="w-5 h-5 md:w-6 md:h-6" />
-        </a>
-      </motion.div>
+        </motion.a>
+      </div>
     </section>
   );
 };
