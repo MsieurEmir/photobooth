@@ -271,8 +271,15 @@ const BookingsPage = () => {
                         <p className="text-xs text-gray-500">{booking.event_time}</p>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-sm font-semibold text-green-600">
-                      {Number(booking.total_price).toFixed(0)}€
+                    <td className="py-3 px-4 text-sm font-semibold">
+                      {booking.status === 'cancelled' ? (
+                        <div className="flex flex-col items-center">
+                          <span className="text-gray-400 line-through">{Number(booking.total_price).toFixed(0)}€</span>
+                          <span className="text-xs text-red-600 font-normal">(0€)</span>
+                        </div>
+                      ) : (
+                        <span className="text-green-600">{Number(booking.total_price).toFixed(0)}€</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-sm">
                       <select

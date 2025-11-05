@@ -45,7 +45,9 @@ const DashboardPage = () => {
         .eq('status', 'new');
 
       if (bookings) {
-        const totalRevenue = bookings.reduce((sum, booking) => sum + Number(booking.total_price), 0);
+        const totalRevenue = bookings
+          .filter(booking => booking.status !== 'cancelled')
+          .reduce((sum, booking) => sum + Number(booking.total_price), 0);
         const pendingCount = bookings.filter(b => b.status === 'pending').length;
 
         setStats({
@@ -238,8 +240,12 @@ const DashboardPage = () => {
                       <td className="py-3 px-4 text-sm">
                         {new Date(booking.event_date).toLocaleDateString('fr-FR')}
                       </td>
-                      <td className="py-3 px-4 text-sm font-semibold text-green-600">
-                        {Number(booking.total_price).toFixed(0)}€
+                      <td className="py-3 px-4 text-sm font-semibold">
+                        {booking.status === 'cancelled' ? (
+                          <span className="text-gray-400 line-through">{Number(booking.total_price).toFixed(0)}€</span>
+                        ) : (
+                          <span className="text-green-600">{Number(booking.total_price).toFixed(0)}€</span>
+                        )}
                       </td>
                       <td className="py-3 px-4 text-sm">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
