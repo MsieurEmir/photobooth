@@ -374,10 +374,10 @@ const GalleryManagementPage = () => {
                   ))}
                 </div>
               </div>
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
+              <div className="absolute top-2 right-2 flex space-x-2">
                 <button
                   onClick={() => toggleImageVisibility(image.id, image.is_public)}
-                  className={`p-2 rounded-lg shadow-lg transition-colors ${
+                  className={`p-2 rounded-lg shadow-lg transition-all ${
                     image.is_public
                       ? 'bg-gray-700 hover:bg-gray-800 text-white'
                       : 'bg-green-500 hover:bg-green-600 text-white'
@@ -388,7 +388,7 @@ const GalleryManagementPage = () => {
                 </button>
                 <button
                   onClick={() => deleteImage(image.id, image.image_url)}
-                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg"
+                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-lg transition-all opacity-0 group-hover:opacity-100"
                 >
                   <Trash2 size={16} />
                 </button>
