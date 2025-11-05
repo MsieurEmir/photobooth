@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 interface GalleryTag {
   id: string;
   name: string;
+  color: string;
   imageCount?: number;
 }
 
@@ -17,15 +18,18 @@ interface TagManagementProps {
 export const TagManagement: React.FC<TagManagementProps> = ({ tags, onTagsChange }) => {
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const [editingTagName, setEditingTagName] = useState('');
+  const [editingTagColor, setEditingTagColor] = useState('');
 
   const startEdit = (tag: GalleryTag) => {
     setEditingTagId(tag.id);
     setEditingTagName(tag.name);
+    setEditingTagColor(tag.color);
   };
 
   const cancelEdit = () => {
     setEditingTagId(null);
     setEditingTagName('');
+    setEditingTagColor('');
   };
 
   const saveEdit = async (tagId: string) => {
@@ -37,13 +41,17 @@ export const TagManagement: React.FC<TagManagementProps> = ({ tags, onTagsChange
     try {
       const { error } = await supabase
         .from('gallery_tags')
-        .update({ name: editingTagName.toLowerCase().trim() })
+        .update({
+          name: editingTagName.toLowerCase().trim(),
+          color: editingTagColor
+        })
         .eq('id', tagId);
 
       if (error) throw error;
 
       setEditingTagId(null);
       setEditingTagName('');
+      setEditingTagColor('');
       onTagsChange();
     } catch (error) {
       console.error('Error updating tag:', error);
@@ -92,40 +100,72 @@ export const TagManagement: React.FC<TagManagementProps> = ({ tags, onTagsChange
               key={tag.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="card p-3 flex items-center justify-between group"
+              className="card p-3 group relative overflow-hidden"
+              style={{
+                borderLeft: `4px solid ${tag.color}`
+              }}
             >
               {editingTagId === tag.id ? (
-                <div className="flex items-center space-x-2 flex-1">
-                  <input
-                    type="text"
-                    value={editingTagName}
-                    onChange={(e) => setEditingTagName(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && saveEdit(tag.id)}
-                    className="input-field text-sm py-1 flex-1"
-                    autoFocus
-                  />
-                  <button
-                    onClick={() => saveEdit(tag.id)}
-                    className="p-1 text-green-600 hover:bg-green-50 rounded"
-                  >
-                    <Check size={16} />
-                  </button>
-                  <button
-                    onClick={cancelEdit}
-                    className="p-1 text-red-600 hover:bg-red-50 rounded"
-                  >
-                    <X size={16} />
-                  </button>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={editingTagName}
+                      onChange={(e) => setEditingTagName(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && saveEdit(tag.id)}
+                      className="input-field text-sm py-1 flex-1"
+                      placeholder="Nom du tag"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => saveEdit(tag.id)}
+                      className="p-1 text-green-600 hover:bg-green-50 rounded"
+                      title="Sauvegarder"
+                    >
+                      <Check size={16} />
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="p-1 text-red-600 hover:bg-red-50 rounded"
+                      title="Annuler"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <label className="text-xs font-medium text-gray-700">Couleur:</label>
+                    <input
+                      type="color"
+                      value={editingTagColor}
+                      onChange={(e) => setEditingTagColor(e.target.value)}
+                      className="w-12 h-8 rounded cursor-pointer border border-gray-300"
+                    />
+                    <div
+                      className="flex-1 px-3 py-1 rounded-full text-xs font-medium text-center"
+                      style={{
+                        backgroundColor: editingTagColor,
+                        color: '#ffffff'
+                      }}
+                    >
+                      Aperçu
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900 text-sm">{tag.name}</p>
-                    {typeof tag.imageCount === 'number' && (
-                      <p className="text-xs text-gray-500">
-                        {tag.imageCount} image{tag.imageCount > 1 ? 's' : ''}
-                      </p>
-                    )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 flex-1">
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900 text-sm">{tag.name}</p>
+                      {typeof tag.imageCount === 'number' && (
+                        <p className="text-xs text-gray-500">
+                          {tag.imageCount} image{tag.imageCount > 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
@@ -143,7 +183,7 @@ export const TagManagement: React.FC<TagManagementProps> = ({ tags, onTagsChange
                       <Trash2 size={14} />
                     </button>
                   </div>
-                </>
+                </div>
               )}
             </motion.div>
           ))

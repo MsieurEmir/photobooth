@@ -8,7 +8,7 @@ interface ImageUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  availableTags: Array<{ id: string; name: string }>;
+  availableTags: Array<{ id: string; name: string; color: string }>;
   onCreateTag: (tagName: string) => Promise<void>;
 }
 
@@ -434,7 +434,12 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                     {availableTags.map((tag) => (
                       <span
                         key={tag.id}
-                        className="px-3 py-1 bg-white border border-gray-300 rounded-full text-sm text-gray-700"
+                        className="px-3 py-1 rounded-full text-sm font-medium border-2"
+                        style={{
+                          backgroundColor: `${tag.color}15`,
+                          borderColor: tag.color,
+                          color: tag.color
+                        }}
                       >
                         {tag.name}
                       </span>
@@ -607,7 +612,6 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                               })
                               .map((tag) => {
                                 const isSelected = image.selectedTags.includes(tag.id);
-                                console.log('Tag:', tag.name, 'ID:', tag.id, 'Selected:', isSelected, 'SelectedTags:', image.selectedTags);
                                 return (
                                   <button
                                     key={tag.id}
@@ -615,25 +619,43 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      console.log('Clicking tag:', tag.id, 'Current selected tags:', image.selectedTags);
                                       toggleTag(index, tag.id);
                                     }}
                                     disabled={image.uploading}
+                                    className="relative group"
                                     style={{
-                                      backgroundColor: isSelected ? '#dc2626' : '#e5e7eb',
-                                      color: isSelected ? '#ffffff' : '#1f2937',
-                                      border: `3px solid ${isSelected ? '#dc2626' : '#9ca3af'}`,
+                                      backgroundColor: isSelected ? tag.color : '#f3f4f6',
+                                      color: isSelected ? '#ffffff' : '#4b5563',
+                                      border: `3px solid ${isSelected ? tag.color : '#d1d5db'}`,
                                       padding: '8px 16px',
                                       borderRadius: '9999px',
                                       fontSize: '0.875rem',
                                       fontWeight: isSelected ? '700' : '500',
                                       cursor: image.uploading ? 'not-allowed' : 'pointer',
                                       opacity: image.uploading ? 0.5 : 1,
-                                      transition: 'all 0.2s',
-                                      boxShadow: isSelected ? '0 2px 8px rgba(220, 38, 38, 0.3)' : 'none',
+                                      transition: 'all 0.3s ease',
+                                      boxShadow: isSelected ? `0 4px 12px ${tag.color}40` : '0 1px 3px rgba(0,0,0,0.1)',
+                                      transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (!isSelected && !image.uploading) {
+                                        e.currentTarget.style.backgroundColor = `${tag.color}20`;
+                                        e.currentTarget.style.borderColor = tag.color;
+                                        e.currentTarget.style.color = tag.color;
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (!isSelected) {
+                                        e.currentTarget.style.backgroundColor = '#f3f4f6';
+                                        e.currentTarget.style.borderColor = '#d1d5db';
+                                        e.currentTarget.style.color = '#4b5563';
+                                      }
                                     }}
                                   >
-                                    {isSelected && '✓ '}{tag.name}
+                                    {isSelected && (
+                                      <span className="inline-block mr-1 font-bold">✓</span>
+                                    )}
+                                    {tag.name}
                                   </button>
                                 );
                               })}

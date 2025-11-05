@@ -17,6 +17,7 @@ interface GalleryImage {
 interface GalleryTag {
   id: string;
   name: string;
+  color: string;
   imageCount?: number;
 }
 
@@ -291,19 +292,39 @@ const GalleryManagementPage = () => {
           >
             Tous ({images.length})
           </button>
-          {tags.map((tag) => (
-            <button
-              key={tag.id}
-              onClick={() => toggleTagFilter(tag.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedTags.includes(tag.id)
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {tag.name} ({tag.imageCount})
-            </button>
-          ))}
+          {tags.map((tag) => {
+            const isSelected = selectedTags.includes(tag.id);
+            return (
+              <button
+                key={tag.id}
+                onClick={() => toggleTagFilter(tag.id)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all border-2"
+                style={{
+                  backgroundColor: isSelected ? tag.color : '#f3f4f6',
+                  color: isSelected ? '#ffffff' : '#374151',
+                  borderColor: isSelected ? tag.color : 'transparent',
+                  transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                  boxShadow: isSelected ? `0 4px 8px ${tag.color}30` : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.backgroundColor = `${tag.color}20`;
+                    e.currentTarget.style.borderColor = tag.color;
+                    e.currentTarget.style.color = tag.color;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.borderColor = 'transparent';
+                    e.currentTarget.style.color = '#374151';
+                  }
+                }}
+              >
+                {tag.name} ({tag.imageCount})
+              </button>
+            );
+          })}
         </div>
       </div>
 

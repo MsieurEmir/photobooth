@@ -7,12 +7,13 @@ interface GalleryImage {
   id: string;
   image_url: string;
   caption: string;
-  tags: Array<{ id: string; name: string }>;
+  tags: Array<{ id: string; name: string; color: string }>;
 }
 
 interface GalleryTag {
   id: string;
   name: string;
+  color: string;
   count: number;
 }
 
@@ -59,7 +60,8 @@ const GalleryPage = () => {
               tags:
                 imageTags?.map((it: any) => ({
                   id: it.gallery_tags.id,
-                  name: it.gallery_tags.name
+                  name: it.gallery_tags.name,
+                  color: it.gallery_tags.color
                 })) || []
             };
           })
@@ -67,7 +69,7 @@ const GalleryPage = () => {
 
         setImages(imagesWithTags);
 
-        const tagCounts = new Map<string, { id: string; name: string; count: number }>();
+        const tagCounts = new Map<string, { id: string; name: string; color: string; count: number }>();
 
         imagesWithTags.forEach((image) => {
           image.tags.forEach((tag) => {
@@ -75,7 +77,7 @@ const GalleryPage = () => {
               const existing = tagCounts.get(tag.id)!;
               existing.count++;
             } else {
-              tagCounts.set(tag.id, { id: tag.id, name: tag.name, count: 1 });
+              tagCounts.set(tag.id, { id: tag.id, name: tag.name, color: tag.color, count: 1 });
             }
           });
         });
@@ -120,27 +122,47 @@ const GalleryPage = () => {
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           <button
             onClick={() => setFilter('tous')}
-            className={`px-6 py-2 rounded-full transition-all ${
+            className={`px-6 py-2 rounded-full transition-all font-medium ${
               filter === 'tous'
-                ? 'bg-secondary text-white'
+                ? 'bg-secondary text-white shadow-lg'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
             }`}
           >
             Tous ({images.length})
           </button>
-          {tags.map((tag) => (
-            <button
-              key={tag.id}
-              onClick={() => setFilter(tag.name)}
-              className={`px-6 py-2 rounded-full transition-all ${
-                filter === tag.name
-                  ? 'bg-secondary text-white'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-              }`}
-            >
-              {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)} ({tag.count})
-            </button>
-          ))}
+          {tags.map((tag) => {
+            const isSelected = filter === tag.name;
+            return (
+              <button
+                key={tag.id}
+                onClick={() => setFilter(tag.name)}
+                className={`px-6 py-2 rounded-full transition-all font-medium border-2 ${
+                  isSelected ? 'shadow-lg transform scale-105' : 'hover:scale-105'
+                }`}
+                style={{
+                  backgroundColor: isSelected ? tag.color : '#f3f4f6',
+                  color: isSelected ? '#ffffff' : '#1f2937',
+                  borderColor: isSelected ? tag.color : 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.backgroundColor = `${tag.color}20`;
+                    e.currentTarget.style.borderColor = tag.color;
+                    e.currentTarget.style.color = tag.color;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.borderColor = 'transparent';
+                    e.currentTarget.style.color = '#1f2937';
+                  }
+                }}
+              >
+                {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)} ({tag.count})
+              </button>
+            );
+          })}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -168,7 +190,12 @@ const GalleryPage = () => {
                     {item.tags.map((tag) => (
                       <span
                         key={tag.id}
-                        className="px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs"
+                        className="px-2 py-0.5 rounded-full text-xs font-medium border"
+                        style={{
+                          backgroundColor: tag.color,
+                          color: '#ffffff',
+                          borderColor: '#ffffff50'
+                        }}
                       >
                         {tag.name}
                       </span>
