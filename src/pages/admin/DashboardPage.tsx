@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Camera, DollarSign, Calendar, TrendingUp, AlertCircle } from 'lucide-react';
+import { Users, Camera, DollarSign, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface DashboardStats {
   totalBookings: number;
   pendingBookings: number;
+  confirmedBookings: number;
+  completedBookings: number;
+  cancelledBookings: number;
   totalRevenue: number;
   totalCustomers: number;
   newMessages: number;
@@ -17,6 +20,9 @@ const DashboardPage = () => {
   const [stats, setStats] = useState<DashboardStats>({
     totalBookings: 0,
     pendingBookings: 0,
+    confirmedBookings: 0,
+    completedBookings: 0,
+    cancelledBookings: 0,
     totalRevenue: 0,
     totalCustomers: 0,
     newMessages: 0,
@@ -49,10 +55,16 @@ const DashboardPage = () => {
           .filter(booking => booking.status !== 'cancelled')
           .reduce((sum, booking) => sum + Number(booking.total_price), 0);
         const pendingCount = bookings.filter(b => b.status === 'pending').length;
+        const confirmedCount = bookings.filter(b => b.status === 'confirmed').length;
+        const completedCount = bookings.filter(b => b.status === 'completed').length;
+        const cancelledCount = bookings.filter(b => b.status === 'cancelled').length;
 
         setStats({
           totalBookings: bookings.length,
           pendingBookings: pendingCount,
+          confirmedBookings: confirmedCount,
+          completedBookings: completedCount,
+          cancelledBookings: cancelledCount,
           totalRevenue: totalRevenue,
           totalCustomers: customers?.length || 0,
           newMessages: messages?.length || 0,
@@ -146,23 +158,6 @@ const DashboardPage = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">En Attente</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.pendingBookings}</p>
-              </div>
-              <div className="bg-yellow-100 p-3 rounded-lg">
-                <AlertCircle className="text-yellow-600" size={24} />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="card p-6"
-          >
-            <div className="flex items-center justify-between">
-              <div>
                 <p className="text-sm text-gray-600 mb-1">Revenu Total</p>
                 <p className="text-3xl font-bold text-green-600">{stats.totalRevenue.toFixed(0)}€</p>
               </div>
@@ -175,7 +170,7 @@ const DashboardPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
             className="card p-6"
           >
             <div className="flex items-center justify-between">
@@ -185,6 +180,76 @@ const DashboardPage = () => {
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <Users className="text-blue-600" size={24} />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="card p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">En Attente</p>
+                <p className="text-3xl font-bold text-yellow-600">{stats.pendingBookings}</p>
+              </div>
+              <div className="bg-yellow-100 p-3 rounded-lg">
+                <Clock className="text-yellow-600" size={24} />
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="card p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Confirmées</p>
+                <p className="text-3xl font-bold text-green-600">{stats.confirmedBookings}</p>
+              </div>
+              <div className="bg-green-100 p-3 rounded-lg">
+                <CheckCircle className="text-green-600" size={24} />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="card p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Terminées</p>
+                <p className="text-3xl font-bold text-blue-600">{stats.completedBookings}</p>
+              </div>
+              <div className="bg-blue-100 p-3 rounded-lg">
+                <CheckCircle className="text-blue-600" size={24} />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="card p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Annulées</p>
+                <p className="text-3xl font-bold text-red-600">{stats.cancelledBookings}</p>
+              </div>
+              <div className="bg-red-100 p-3 rounded-lg">
+                <XCircle className="text-red-600" size={24} />
               </div>
             </div>
           </motion.div>
