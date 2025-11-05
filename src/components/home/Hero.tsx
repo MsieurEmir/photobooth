@@ -55,16 +55,13 @@ const Hero = () => {
       </div>
 
       {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-28 bottom-12 sm:bottom-8 md:bottom-8 left-1/2 transform -translate-x-1/2 z-20"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-      ><motion.div
+     <motion.div
   className="absolute bottom-28 sm:bottom-16 md:bottom-12 left-1/2 transform -translate-x-1/2 z-20"
   animate={{ y: [0, 10, 0] }}
   transition={{ repeat: Infinity, duration: 1.5 }}
 >
 
+        
         <a
           href="#features"
           className="text-white flex flex-col items-center"
