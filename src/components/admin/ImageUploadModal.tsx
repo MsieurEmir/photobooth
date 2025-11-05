@@ -492,11 +492,11 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                                 }
                               }}
                               disabled={image.uploading}
-                              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
+                              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${image.uploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${
                                 image.isPublic
                                   ? 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100'
                                   : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'
-                              } ${image.uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              }`}
                             >
                               {image.isPublic ? (
                                 <>
@@ -530,11 +530,11 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                                   }
                                 }}
                                 disabled={image.uploading}
-                                className={`px-3 py-1 rounded-full text-sm transition-colors cursor-pointer ${
+                                className={`px-3 py-1 rounded-full text-sm transition-colors ${image.uploading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${
                                   image.selectedTags.includes(tag.id)
                                     ? 'bg-primary text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                } ${image.uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                }`}
                               >
                                 {tag.name}
                               </button>
