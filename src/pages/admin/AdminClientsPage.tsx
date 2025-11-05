@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Download, Mail, Phone, MapPin, User } from 'lucide-react';
+import { Search, Download, Mail, Phone, MapPin, User, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface Customer {
@@ -19,6 +19,9 @@ const AdminClientsPage = () => {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadCustomers();
@@ -69,6 +72,34 @@ const AdminClientsPage = () => {
       return `${customer.first_name} ${customer.last_name}`;
     }
     return customer.name || 'N/A';
+  };
+
+  const handleDeleteClick = (customer: Customer) => {
+    setCustomerToDelete(customer);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!customerToDelete) return;
+
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', customerToDelete.id);
+
+      if (error) throw error;
+
+      setCustomers(prev => prev.filter(c => c.id !== customerToDelete.id));
+      setShowDeleteModal(false);
+      setCustomerToDelete(null);
+    } catch (error: any) {
+      console.error('Error deleting customer:', error);
+      alert('Erreur lors de la suppression du client. Vérifiez qu\'il n\'a pas de réservations associées.');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const exportToCSV = () => {
@@ -174,12 +205,15 @@ const AdminClientsPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date d'inscription
                 </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                     {searchTerm ? 'Aucun client trouvé pour cette recherche' : 'Aucun client enregistré'}
                   </td>
                 </tr>
@@ -237,6 +271,15 @@ const AdminClientsPage = () => {
                         day: 'numeric'
                       })}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <button
+                        onClick={() => handleDeleteClick(customer)}
+                        className="text-red-600 hover:text-red-800 transition-colors"
+                        title="Supprimer le client"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
                   </motion.tr>
                 ))
               )}
@@ -244,6 +287,55 @@ const AdminClientsPage = () => {
           </table>
         </div>
       </div>
+
+      {showDeleteModal && customerToDelete && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+            >
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <Trash2 className="text-red-600" size={24} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Supprimer le client
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Êtes-vous sûr de vouloir supprimer <strong>{getFullName(customerToDelete)}</strong>?
+                  </p>
+                  <p className="text-gray-500 text-xs mt-2">
+                    Cette action ne peut pas être annulée. Les réservations associées empêcheront la suppression.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setCustomerToDelete(null);
+                  }}
+                  className="btn-outline"
+                  disabled={deleting}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                  disabled={deleting}
+                >
+                  {deleting ? 'Suppression...' : 'Supprimer'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -1,10 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import AdminLayout from './components/layout/AdminLayout';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import GalleryPage from './pages/GalleryPage';
@@ -63,6 +64,7 @@ function App() {
                   </Routes>
                 </main>
                 <Footer />
+                <FloatingWhatsApp />
               </div>
             }
           />
