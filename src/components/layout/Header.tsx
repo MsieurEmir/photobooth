@@ -98,7 +98,8 @@ return (
               style={{ backdropFilter: 'blur(8px)' }}
             >
               <div className="h-20" />
-              <nav className="flex flex-col space-y-6 p-8 text-center">
+<nav className="flex flex-col space-y-6 p-8 text-center bg-gradient-to-br from-secondary to-primary rounded-xl shadow-card text-white transition-all duration-300 ease-in-out">
+
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
