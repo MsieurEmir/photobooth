@@ -17,24 +17,22 @@ const Header = () => {
     { name: 'Contact', path: '/contact' },
   ];
 
-  // 💨 Change le header quand on scroll
+  // Change le style du header au scroll
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 🔒 Ferme le menu sur changement de page
+  // Ferme le menu sur changement de route
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
 
-  // 🚫 Bloquer le scroll quand le menu est ouvert
+  // Bloque le scroll quand le menu est ouvert
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
   const solidHeader = isScrolled || location.pathname !== '/' || isOpen;
@@ -46,21 +44,16 @@ const Header = () => {
           ? 'bg-secondary shadow-md py-2'
           : 'bg-secondary/95 md:bg-transparent md:bg-gradient-to-b md:from-black/60 md:to-transparent py-4'
       }`}
-      style={{
-        backdropFilter: solidHeader ? 'blur(8px)' : 'blur(4px)',
-        top: 0,
-      }}
+      style={{ top: 0 }}
     >
       <div className="container-custom flex justify-between items-center">
-        {/* === LOGO === */}
+        {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 group">
           <Camera className="h-8 w-8 text-accent-yellow transition-transform group-hover:scale-110" />
-          <span className="font-heading font-bold text-xl text-white">
-            PixBooth
-          </span>
+          <span className="font-heading font-bold text-xl text-white">PixBooth</span>
         </Link>
 
-        {/* === NAV DESKTOP === */}
+        {/* Nav desktop */}
         <nav className="hidden md:flex space-x-8">
           {navLinks.map((link) => (
             <Link
@@ -78,20 +71,16 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* === BOUTON MOBILE === */}
+        {/* Bouton mobile */}
         <button
-          className="md:hidden z-20"
+          className="md:hidden z-[10000]"
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
         >
-          {isOpen ? (
-            <X className="h-6 w-6 text-white" />
-          ) : (
-            <Menu className="h-6 w-6 text-white" />
-          )}
+          {isOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
         </button>
 
-        {/* === MENU MOBILE === */}
+        {/* Menu mobile plein écran */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -99,26 +88,24 @@ const Header = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '100%' }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-10 md:hidden flex flex-col bg-gradient-to-br from-secondary to-primary"
-              style={{ backdropFilter: 'blur(8px)' }}
+              className="fixed inset-0 z-[9999] md:hidden flex flex-col bg-gradient-to-br from-secondary to-primary"
             >
               <nav className="flex flex-col flex-1 justify-center space-y-6 p-8 text-center text-white">
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`text-xl font-medium hover:text-accent-yellow transition-colors ${
-                      location.pathname === link.path
-                        ? 'text-accent-yellow font-semibold'
-                        : ''
+                    className={`text-2xl font-semibold hover:text-accent-yellow transition-colors ${
+                      location.pathname === link.path ? 'text-accent-yellow' : ''
                     }`}
                   >
                     {link.name}
                   </Link>
                 ))}
+
                 <Link
                   to="/booking"
-                  className="btn-accent mt-4 hover:scale-105 transition-transform self-center"
+                  className="btn-accent mt-6 hover:scale-105 transition-transform self-center"
                 >
                   Réserver Maintenant
                 </Link>
