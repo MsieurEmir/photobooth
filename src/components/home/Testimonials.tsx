@@ -8,27 +8,56 @@ const testimonials = [
     event: "Mariage",
     quote: "Notre photobooth a été l'un des points forts de notre mariage ! Les invités ont adoré et nous avons maintenant des souvenirs hilarants pour toute la vie.",
     image: "https://images.pexels.com/photos/2253870/pexels-photo-2253870.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    rating: 5
+    rating: 5,
+    date: "2024-10-15"
   },
   {
     name: "Tech Solutions",
     event: "Conférence d'entreprise",
     quote: "Service impeccable et photobooth de grande qualité. Notre événement d'entreprise a été un succès et l'équipe a été très professionnelle.",
     image: "https://images.pexels.com/photos/927022/pexels-photo-927022.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    rating: 5
+    rating: 5,
+    date: "2024-09-22"
   },
   {
     name: "Sophie",
     event: "Anniversaire 30 ans",
     quote: "J'ai loué un photobooth pour mon anniversaire et c'était parfait ! Installation rapide, excellent service et des photos de qualité.",
     image: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    rating: 4
+    rating: 4,
+    date: "2024-11-01"
   }
 ];
+
+const reviewSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'PixBooth',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.7',
+    reviewCount: testimonials.length.toString()
+  },
+  review: testimonials.map(testimonial => ({
+    '@type': 'Review',
+    author: {
+      '@type': 'Person',
+      name: testimonial.name
+    },
+    datePublished: testimonial.date,
+    reviewBody: testimonial.quote,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: testimonial.rating.toString(),
+      bestRating: '5'
+    }
+  }))
+};
 
 const Testimonials = () => {
   return (
     <section className="section bg-secondary-light">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }} />
       <div className="container-custom">
         <div className="text-center mb-16">
           <motion.h2 

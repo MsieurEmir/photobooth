@@ -57,6 +57,7 @@ const Footer = () => {
                 { name: 'Galerie', path: '/gallery' },
                 { name: 'Réserver', path: '/booking' },
                 { name: 'À Propos', path: '/about' },
+                { name: 'FAQ', path: '/faq' },
                 { name: 'Contact', path: '/contact' },
               ].map((link) => (
                 <li key={link.path}>

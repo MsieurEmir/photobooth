@@ -10,6 +10,9 @@ interface SEOProps {
   type?: 'website' | 'article' | 'product';
   noindex?: boolean;
   structuredData?: object;
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -20,7 +23,10 @@ const SEO: React.FC<SEOProps> = ({
   url = '',
   type = 'website',
   noindex = false,
-  structuredData
+  structuredData,
+  author = 'PixBooth',
+  publishedTime,
+  modifiedTime
 }) => {
   const baseUrl = window.location.origin;
   const fullUrl = url ? `${baseUrl}${url}` : window.location.href;
@@ -42,7 +48,13 @@ const SEO: React.FC<SEOProps> = ({
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'FR'
-    }
+    },
+    sameAs: [
+      'https://www.facebook.com/pixbooth',
+      'https://www.instagram.com/pixbooth',
+      'https://www.twitter.com/pixbooth',
+      'https://www.linkedin.com/company/pixbooth'
+    ]
   };
 
   return (
@@ -52,7 +64,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="keywords" content={keywords} />
 
       {noindex && <meta name="robots" content="noindex, nofollow" />}
-      {!noindex && <meta name="robots" content="index, follow" />}
+      {!noindex && <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />}
 
       <link rel="canonical" href={fullUrl} />
 
@@ -61,17 +73,39 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:type" content={type} />
       <meta property="og:url" content={fullUrl} />
       <meta property="og:image" content={fullImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={title} />
       <meta property="og:site_name" content="PixBooth" />
       <meta property="og:locale" content="fr_FR" />
+      {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+      {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+      {author && <meta property="article:author" content={author} />}
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImage} />
+      <meta name="twitter:image:alt" content={title} />
+      <meta name="twitter:site" content="@pixbooth" />
+      <meta name="twitter:creator" content="@pixbooth" />
 
       <meta name="theme-color" content="#FF6B6B" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      <meta name="apple-mobile-web-app-title" content="PixBooth" />
+      <meta name="mobile-web-app-capable" content="yes" />
+
+      <meta name="author" content={author} />
+      <meta name="copyright" content="PixBooth © 2025" />
+      <meta name="language" content="French" />
+      <meta name="revisit-after" content="7 days" />
+      <meta name="distribution" content="global" />
+      <meta name="rating" content="general" />
+      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+
+      <meta name="geo.region" content="FR" />
+      <meta name="geo.placename" content="Paris" />
 
       {structuredData && (
         <script type="application/ld+json">

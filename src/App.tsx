@@ -12,6 +12,7 @@ import GalleryPage from './pages/GalleryPage';
 import BookingPage from './pages/BookingPage';
 import ContactPage from './pages/ContactPage';
 import AboutPage from './pages/AboutPage';
+import FAQPage from './pages/FAQPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import BookingsPage from './pages/admin/BookingsPage';
@@ -61,6 +62,7 @@ function App() {
                     <Route path="/booking" element={<BookingPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/about" element={<AboutPage />} />
+                    <Route path="/faq" element={<FAQPage />} />
                   </Routes>
                 </main>
                 <Footer />

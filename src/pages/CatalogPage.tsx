@@ -40,23 +40,44 @@ const CatalogPage = () => {
 
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    itemListElement: filteredProducts.map((product, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'Product',
-        name: product.name,
-        description: product.description,
-        image: product.image_url,
-        offers: {
-          '@type': 'Offer',
-          price: product.price,
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock'
-        }
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Accueil',
+            item: window.location.origin
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Catalogue',
+            item: `${window.location.origin}/catalog`
+          }
+        ]
+      },
+      {
+        '@type': 'ItemList',
+        itemListElement: filteredProducts.map((product, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Product',
+            name: product.name,
+            description: product.description,
+            image: product.image_url,
+            offers: {
+              '@type': 'Offer',
+              price: product.price,
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock'
+            }
+          }
+        }))
       }
-    }))
+    ]
   };
 
   return (
