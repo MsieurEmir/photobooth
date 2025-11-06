@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Clock, Send, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { validateEmail } from '../utils/emailValidator';
+import { validatePhone, formatPhoneWhileTyping } from '../utils/phoneValidator';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -18,9 +20,14 @@ const ContactPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when field is changed
+
+    let finalValue = value;
+    if (name === 'phone') {
+      finalValue = formatPhoneWhileTyping(value);
+    }
+
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
+
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = {...prev};
@@ -32,17 +39,23 @@ const ContactPage = () => {
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
-    
+
     if (!formData.name) newErrors.name = "Veuillez entrer votre nom";
-    if (!formData.email) newErrors.email = "Veuillez entrer votre email";
     if (!formData.subject) newErrors.subject = "Veuillez sélectionner un sujet";
     if (!formData.message) newErrors.message = "Veuillez entrer votre message";
-    
-    // Email validation
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Veuillez entrer un email valide";
+
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) {
+      newErrors.email = emailValidation.error || "Email invalide";
     }
-    
+
+    if (formData.phone) {
+      const phoneValidation = validatePhone(formData.phone);
+      if (!phoneValidation.isValid) {
+        newErrors.phone = phoneValidation.error || "Téléphone invalide";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -249,9 +262,10 @@ const ContactPage = () => {
                         value={formData.email}
                         onChange={handleChange}
                         className={`input-field ${errors.email ? 'border-error' : ''}`}
-                        placeholder="john@example.com"
+                        placeholder="exemple@gmail.com"
                       />
                       {errors.email && <p className="text-error text-sm mt-1">{errors.email}</p>}
+                      <p className="text-xs text-gray-500 mt-1">Utilisez un email réel (Gmail, Outlook, Yahoo, Orange, Free, etc.)</p>
                     </div>
                   </div>
                   
@@ -264,9 +278,11 @@ const ContactPage = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className="input-field"
-                        placeholder="06 12 34 56 78"
+                        className={`input-field ${errors.phone ? 'border-error' : ''}`}
+                        placeholder="06 12 34 56 78 ou +33 6 12 34 56 78"
                       />
+                      {errors.phone && <p className="text-error text-sm mt-1">{errors.phone}</p>}
+                      <p className="text-xs text-gray-500 mt-1">Format: 10 chiffres (ex: 0612345678) ou +33 avec 9 chiffres</p>
                     </div>
                     <div>
                       <label htmlFor="subject" className="label">Sujet</label>

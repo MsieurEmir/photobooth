@@ -4,6 +4,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Check, AlertCircle, Calendar, Clock, MapPin, Users, Camera } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database';
+import { validateEmail } from '../utils/emailValidator';
+import { validatePhone, formatPhoneWhileTyping } from '../utils/phoneValidator';
 
 type Product = Database['public']['Tables']['products']['Row'];
 
@@ -74,9 +76,14 @@ const BookingPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when field is changed
+
+    let finalValue = value;
+    if (name === 'phone') {
+      finalValue = formatPhoneWhileTyping(value);
+    }
+
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
+
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = {...prev};
@@ -108,19 +115,17 @@ const BookingPage = () => {
     if (step === 2) {
       if (!formData.firstName) newErrors.firstName = "Veuillez entrer votre prénom";
       if (!formData.lastName) newErrors.lastName = "Veuillez entrer votre nom";
-      if (!formData.email) newErrors.email = "Veuillez entrer votre email";
-      if (!formData.phone) newErrors.phone = "Veuillez entrer votre téléphone";
       if (!formData.address) newErrors.address = "Veuillez entrer l'adresse de l'événement";
       if (!formData.eventType) newErrors.eventType = "Veuillez sélectionner un type d'événement";
-      
-      // Email validation
-      if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = "Veuillez entrer un email valide";
+
+      const emailValidation = validateEmail(formData.email);
+      if (!emailValidation.isValid) {
+        newErrors.email = emailValidation.error || "Email invalide";
       }
-      
-      // Phone validation
-      if (formData.phone && !/^[0-9]{10}$/.test(formData.phone.replace(/\s/g, ''))) {
-        newErrors.phone = "Veuillez entrer un numéro de téléphone valide (10 chiffres)";
+
+      const phoneValidation = validatePhone(formData.phone);
+      if (!phoneValidation.isValid) {
+        newErrors.phone = phoneValidation.error || "Téléphone invalide";
       }
     }
     
@@ -455,10 +460,11 @@ const BookingPage = () => {
                         value={formData.email}
                         onChange={handleChange}
                         className={`input-field ${errors.email ? 'border-error' : ''}`}
-                        placeholder="john@example.com"
+                        placeholder="exemple@gmail.com"
                         required
                       />
                       {errors.email && <p className="text-error text-sm mt-1">{errors.email}</p>}
+                      <p className="text-xs text-gray-500 mt-1">Utilisez un email réel (Gmail, Outlook, Yahoo, Orange, Free, etc.)</p>
                     </div>
                     
                     <div className="mb-6">
@@ -470,10 +476,11 @@ const BookingPage = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         className={`input-field ${errors.phone ? 'border-error' : ''}`}
-                        placeholder="06 12 34 56 78"
+                        placeholder="06 12 34 56 78 ou +33 6 12 34 56 78"
                         required
                       />
                       {errors.phone && <p className="text-error text-sm mt-1">{errors.phone}</p>}
+                      <p className="text-xs text-gray-500 mt-1">Format: 10 chiffres (ex: 0612345678) ou +33 avec 9 chiffres</p>
                     </div>
                     
                     <div className="mb-6">
