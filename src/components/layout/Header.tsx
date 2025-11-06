@@ -30,8 +30,8 @@ const Header = () => {
     setIsOpen(false);
   }, [location]);
 
-  return (
 const solidHeader = isScrolled || location.pathname !== '/' || isOpen;
+  return (
 
 <header
   className={`fixed w-full z-[100] transition-all duration-300 ${
