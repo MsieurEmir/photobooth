@@ -248,6 +248,15 @@ const BookingsPage = () => {
   const handleAddBooking = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const selectedDate = new Date(newBooking.eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      alert('La date de l\'événement ne peut pas être antérieure à aujourd\'hui');
+      return;
+    }
+
     try {
       let customerId = null;
 
@@ -728,6 +737,7 @@ const BookingsPage = () => {
                           value={newBooking.eventDate}
                           onChange={(e) => setNewBooking({...newBooking, eventDate: e.target.value})}
                           className="input-field"
+                          min={new Date().toISOString().split('T')[0]}
                           required
                         />
                       </div>

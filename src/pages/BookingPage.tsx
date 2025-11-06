@@ -88,11 +88,21 @@ const BookingPage = () => {
 
   const validateStep = (step: number) => {
     const newErrors: {[key: string]: string} = {};
-    
+
     if (step === 1) {
       if (!formData.product) newErrors.product = "Veuillez sélectionner un photobooth";
       if (!formData.date) newErrors.date = "Veuillez sélectionner une date";
       if (!formData.time) newErrors.time = "Veuillez sélectionner une heure";
+
+      if (formData.date) {
+        const selectedDate = new Date(formData.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+          newErrors.date = "La date ne peut pas être antérieure à aujourd'hui";
+        }
+      }
     }
     
     if (step === 2) {
