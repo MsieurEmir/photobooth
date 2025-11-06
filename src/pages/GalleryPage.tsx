@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 
 interface GalleryImage {
@@ -163,6 +164,13 @@ const GalleryPage = () => {
 
   return (
     <>
+      <SEO
+        title="Galerie Photos - Exemples d'Événements avec Photobooth | PixBooth"
+        description="Parcourez notre galerie de photos prises lors de mariages, soirées d'entreprise et événements. Découvrez la qualité et l'ambiance de nos photobooths en action."
+        keywords="galerie photobooth, photos mariage photobooth, exemples photobooth, photos événements, réalisations photobooth, portfolio photobooth"
+        url="/gallery"
+        type="website"
+      />
       <div className="bg-secondary text-white py-16">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Galerie Photos</h1>

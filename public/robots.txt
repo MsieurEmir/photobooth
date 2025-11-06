@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /login
+
+# Sitemaps
+Sitemap: https://pixbooth.fr/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

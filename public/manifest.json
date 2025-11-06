@@ -1,0 +1,21 @@
+{
+  "name": "PixBooth - Location de Photobooth",
+  "short_name": "PixBooth",
+  "description": "Location de photobooths professionnels pour vos événements, mariages et soirées d'entreprise",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6B6B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/camera.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["events", "photography", "entertainment"],
+  "lang": "fr",
+  "dir": "ltr"
+}

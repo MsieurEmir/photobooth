@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { Check, AlertCircle, Calendar, Clock, MapPin, Users, Camera } from 'lucide-react';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database';
 import { validateEmail } from '../utils/emailValidator';
@@ -274,6 +275,13 @@ const BookingPage = () => {
 
   return (
     <div>
+      <SEO
+        title="Réservation Photobooth - Louez Votre Borne Photo | PixBooth"
+        description="Réservez votre photobooth en ligne facilement. Choisissez votre modèle, date et horaire. Confirmation immédiate et service professionnel garanti."
+        keywords="réserver photobooth, location photobooth en ligne, réservation borne photo, louer photobooth, booking photobooth, réservation événement"
+        url="/booking"
+        type="website"
+      />
       <div className="bg-accent-purple text-white py-16">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Réservation</h1>

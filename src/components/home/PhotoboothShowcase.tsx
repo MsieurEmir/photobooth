@@ -71,10 +71,11 @@ const PhotoboothShowcase = () => {
               whileHover={{ y: -5 }}
             >
               <div className="relative h-64 overflow-hidden">
-                <img 
-                  src={booth.image} 
-                  alt={booth.name} 
+                <img
+                  src={booth.image}
+                  alt={`${booth.name} - Photobooth professionnel pour événements`}
                   className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
                 <div className="absolute bottom-4 left-4 text-white">

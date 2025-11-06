@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database';
 
@@ -37,8 +38,37 @@ const CatalogPage = () => {
     ? products
     : products.filter(product => product.category === filter);
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: filteredProducts.map((product, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Product',
+        name: product.name,
+        description: product.description,
+        image: product.image_url,
+        offers: {
+          '@type': 'Offer',
+          price: product.price,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock'
+        }
+      }
+    }))
+  };
+
   return (
     <div>
+      <SEO
+        title="Catalogue Photobooths - Location de Bornes Photo Premium | PixBooth"
+        description="Découvrez notre gamme complète de photobooths à louer : modèles premium, spécialités et bornes photos personnalisées. Tarifs dégressifs et équipement professionnel."
+        keywords="catalogue photobooth, location borne photo, photobooth premium, tarif photobooth, louer photobooth, borne selfie, photobooth mariage prix"
+        url="/catalog"
+        type="website"
+        structuredData={structuredData}
+      />
       <div className="bg-primary text-white py-16">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Nos Photobooths</h1>
@@ -103,8 +133,9 @@ const CatalogPage = () => {
               <div className="relative h-64 overflow-hidden">
                 <img
                   src={product.image_url}
-                  alt={product.name}
+                  alt={`${product.name} - Photobooth à louer pour vos événements`}
                   className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
                 <div className="absolute bottom-4 left-4 text-white">

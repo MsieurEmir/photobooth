@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Users, Star, Award, CheckCheck, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 const AboutPage = () => {
   const values = [
@@ -39,6 +40,13 @@ const AboutPage = () => {
 
   return (
     <div>
+      <SEO
+        title="À Propos de PixBooth - Notre Histoire et Nos Valeurs"
+        description="Découvrez l'histoire de PixBooth, spécialiste de la location de photobooths depuis 2015. Plus de 2000 événements réussis et 98% de clients satisfaits."
+        keywords="à propos PixBooth, histoire photobooth, équipe PixBooth, valeurs entreprise, photobooth professionnel, spécialiste photobooth"
+        url="/about"
+        type="website"
+      />
       <div className="bg-secondary text-white py-16">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">À Propos de Nous</h1>
@@ -58,10 +66,11 @@ const AboutPage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <img 
-                src="https://images.pexels.com/photos/7148157/pexels-photo-7148157.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
-                alt="Notre mission" 
+              <img
+                src="https://images.pexels.com/photos/7148157/pexels-photo-7148157.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                alt="Équipe PixBooth - Spécialiste de la location de photobooths pour événements"
                 className="rounded-lg shadow-lg w-full h-auto"
+                loading="lazy"
               />
             </motion.div>
             <motion.div

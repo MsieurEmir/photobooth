@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Clock, Send, Check } from 'lucide-react';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { validateEmail } from '../utils/emailValidator';
 import { validatePhone, formatPhoneWhileTyping } from '../utils/phoneValidator';
@@ -95,8 +96,42 @@ const ContactPage = () => {
     }
   };
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'PixBooth',
+      telephone: '01 23 45 67 89',
+      email: 'contact@pixbooth.fr',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: '123 Avenue des Souvenirs',
+        addressLocality: 'Paris',
+        postalCode: '75001',
+        addressCountry: 'FR'
+      },
+      openingHoursSpecification: [
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          opens: '09:00',
+          closes: '18:00'
+        }
+      ]
+    }
+  };
+
   return (
     <div>
+      <SEO
+        title="Nous Contacter - Devis Photobooth Gratuit | PixBooth"
+        description="Contactez PixBooth pour un devis gratuit. Notre équipe est disponible du lundi au vendredi de 9h à 18h. Réponse rapide garantie sous 24h."
+        keywords="contact photobooth, devis photobooth, contacter PixBooth, demande information photobooth, service client photobooth"
+        url="/contact"
+        type="website"
+        structuredData={structuredData}
+      />
       <div className="bg-accent-coral text-white py-16">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Contactez-nous</h1>
