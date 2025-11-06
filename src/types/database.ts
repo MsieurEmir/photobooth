@@ -50,23 +50,32 @@ export interface Database {
       customers: {
         Row: {
           id: string
-          name: string
+          name: string | null
+          first_name: string
+          last_name: string
           email: string
           phone: string
+          address: string
           created_at: string
         }
         Insert: {
           id?: string
-          name: string
+          name?: string | null
+          first_name: string
+          last_name: string
           email: string
           phone: string
+          address: string
           created_at?: string
         }
         Update: {
           id?: string
-          name?: string
+          name?: string | null
+          first_name?: string
+          last_name?: string
           email?: string
           phone?: string
+          address?: string
           created_at?: string
         }
       }
