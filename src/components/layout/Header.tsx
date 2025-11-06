@@ -31,17 +31,16 @@ const Header = () => {
   }, [location]);
 
   return (
-    <header
-      className={`fixed w-full z-[100] transition-all duration-300 ${
-        isScrolled || location.pathname !== '/'
-          ? 'bg-secondary shadow-md py-2'
-          : 'bg-gradient-to-b from-black/60 to-transparent py-4'
-      }`}
-      style={{
-        backdropFilter: isScrolled || location.pathname !== '/' ? 'blur(8px)' : 'blur(4px)',
-        top: 0
-      }}
-    >
+const solidHeader = isScrolled || location.pathname !== '/' || isOpen;
+
+<header
+  className={`fixed w-full z-[100] transition-all duration-300 ${
+    solidHeader
+      ? 'bg-secondary shadow-md py-2'
+      : 'bg-secondary/95 md:bg-transparent md:bg-gradient-to-b md:from-black/60 md:to-transparent py-4'
+  }`}
+  style={{ backdropFilter: solidHeader ? 'blur(8px)' : 'blur(4px)', top: 0 }}
+>
       <div className="container-custom flex justify-between items-center">
         <Link 
           to="/" 
